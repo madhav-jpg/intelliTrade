@@ -89,7 +89,7 @@ Twisted==22.10.0
 txaio==23.1.1
 typing_extensions==4.6.3
 tzdata==2023.3
-urllib3==2.0.3
+urllib3
 vine==5.0.0
 w3lib==2.1.2
 wcwidth==0.2.6
