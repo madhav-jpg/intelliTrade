@@ -130,6 +130,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
+    '/home/runner/work/intelliTrade/static',
 ]
 
 # CELERY_BROKER_URL = ['application/json']
