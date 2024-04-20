@@ -1,0 +1,72 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<!-- [Head] start -->
+  {% include 'structure/head.html' %}
+<!-- [Head] end -->
+<!-- [Body] Start -->
+
+<body data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-direction="ltr" data-pc-theme_contrast="" data-pc-theme="light">
+  <!-- [ Pre-loader ] start -->
+  {% include 'structure/preloader.html' %}
+<!-- [ Pre-loader ] End -->
+
+<!-- [ Sidebar Menu ] start -->
+  {% include 'structure/sidebar.html' %}
+<!-- [ Sidebar Menu ] end -->
+ <!-- [ Header Topbar ] start -->
+
+<!--Header-->
+{% include 'structure/header.html' %}
+<!--Header ends-->
+
+<!--notification-->
+{% include 'structure/notification.html' %}
+<!-- notification end -->
+
+
+
+  <!-- [ Main Content ] start -->
+  <div class="pc-container">
+    <div class="pc-content">
+      <!-- [ breadcrumb ] start -->
+      {% comment %} {% include 'structure/breadcrumb.html' %} {% endcomment %}
+      <!-- [ breadcrumb ] end -->
+
+
+      <!-- [ Main Content ] start -->
+      {% block content %}
+
+      {% endblock %}
+      <!-- [ Main Content ] end -->
+    </div>
+  </div>
+  <!-- [ Main Content ] end -->
+
+  <!--footer-->
+  {% include 'structure/footer.html' %}
+  <!--footer ends-->
+
+ <!-- Core Js -->
+ {% include 'structure/core.html' %}
+ <!--Core ends-->
+
+
+
+
+
+<script>layout_change(localStorage.getItem("mode"));</script>
+<script>layout_sidebar_change('false');</script>
+<script>change_box_container('false');</script>
+<script>layout_caption_change('true');</script>
+<script>layout_rtl_change('false');</script>
+<script>preset_change("preset-1");</script>
+
+  <!--setting-->
+  {% include 'structure/settings.html' %}
+  <!-- setting ends-->
+
+</body>
+<!-- [Body] end -->
+
+</html>

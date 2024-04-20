@@ -1,0 +1,1194 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Watchlist - IntelliTrade</title>
+  <!-- [Meta] -->
+  <script>
+    function mode_change(mode)
+    {
+      localStorage.setItem('mode', mode);
+      layout_change(mode);
+    }
+  </script>
+  <style>
+    .gdas-range {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 2px;
+         background-image: linear-gradient(to right, red, green);
+      outline: none;
+      -webkit-transition: .2s;
+      transition: opacity .2s;
+    }
+    
+    .gdas-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        background: #ddd;
+        border: 3px solid transparent;
+        border-radius: 50%;
+        cursor: pointer;
+         background-image: linear-gradient(white, white), linear-gradient(to right, red, green);
+         background-attachment: fixed, fixed;
+         background-clip: padding-box, border-box;
+    }
+    
+    .gdas-range::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        background: #ddd;
+        border: 3px solid transparent;
+        border-radius: 50%;
+        cursor: pointer;
+         background-image: linear-gradient(white, white), linear-gradient(to right, red, green);
+         background-attachment: fixed, fixed;
+         background-clip: padding-box, border-box;
+    }
+  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="Able Pro is trending dashboard template made using Bootstrap 5 design framework. Able Pro is available in Bootstrap, React, CodeIgniter, Angular,  and .net Technologies.">
+  <meta name="keywords" content="Bootstrap admin template, Dashboard UI Kit, Dashboard Template, Backend Panel, react dashboard, angular dashboard">
+  <meta name="author" content="Phoenixcoded">
+  
+  <!-- [Favicon] icon -->
+  <link rel="icon" href="{% static 'assets/images/favicon.svg' %}" type="image/x-icon">
+
+  <!-- [Page specific CSS] start -->
+  <link href="{% static 'assets/css/plugins/animate.min.css' %}" rel="stylesheet" type="text/css">
+  
+  <!-- [Page specific CSS] end -->
+  <!-- [Font] Family -->
+  <link rel="stylesheet" href="{% static 'assets/fonts/inter/inter.css' %}" id="main-font-link" />
+  <!-- [Tabler Icons] https://tablericons.com -->
+  <link rel="stylesheet" href="{% static 'assets/fonts/tabler-icons.min.css' %}" />
+  <!-- [Feather Icons] https://feathericons.com -->
+  <link rel="stylesheet" href="{% static 'assets/fonts/feather.css' %}" />
+  <!-- [Font Awesome Icons] https://fontawesome.com/icons -->
+  <link rel="stylesheet" href="{% static 'assets/fonts/fontawesome.css' %}" />
+  <!-- [Material Icons] https://fonts.google.com/icons -->
+  <link rel="stylesheet" href="{% static 'assets/fonts/material.css' %}" />
+  <!-- [Template CSS Files] -->
+  <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" id="main-style-link" />
+  <link rel="stylesheet" href="{% static 'assets/css/style-preset.css' %}" />
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-14K1GBX9FG"></script>
+
+  <link rel="stylesheet" href="{% static 'assets/css/uikit.css' %}">
+  {% comment %} <script>
+    function loadSearch() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            data = JSON.parse(this.responseText);
+            data.forEach((row) => {
+              var scrip = document.createElement('li');
+              var inScrip = document.createElement('a');
+              inScrip.setAttribute('id', row['symbol']);
+              inScrip.setAttribute('href', "{% url 'watchlist' %}?symbol="+row['symbol']);
+              inScrip.setAttribute('class', 'list-group-item list-group-item-action');
+              inScrip.innerHTML = row['symbol'];
+              scrip.appendChild(inScrip);
+              document.getElementById('watchlist').appendChild(scrip);
+            });
+          }
+        };
+        xhttp.open("GET", "{% static 'assets/ScripMaster.txt' %}", true);
+        xhttp.send();
+    }
+    loadSearch();     
+</script> {% endcomment %}
+{% if viewSymbol != None %}
+<script>
+  function getStream() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          window.wsData = wsData = JSON.parse(this.responseText);
+          //if(wsData['token'] == "{{viewToken}}")
+          document.getElementById('open_price_of_the_day').innerHTML = "₹ "+(wsData['open_price_of_the_day']/100).toFixed(2);
+          document.getElementById('high_price_of_the_day').innerHTML = "₹ "+(wsData['high_price_of_the_day']/100).toFixed(2);
+          document.getElementById('low_price_of_the_day').innerHTML = "₹ "+(wsData['low_price_of_the_day']/100).toFixed(2);
+          
+          document.getElementById('closed_price').innerHTML = "₹ "+(wsData['closed_price']/100).toFixed(2);
+          close = (wsData['closed_price']/100).toFixed(2);
+          document.getElementById('average_traded_price').innerHTML = "₹ "+(wsData['average_traded_price']/100).toFixed(2);
+          
+          document.getElementById('volume_trade_for_the_day').innerHTML = wsData['volume_trade_for_the_day'];
+          document.getElementById('week-52-low').innerHTML = document.getElementById('week-52').min = wsData['52_week_low_price']/100;
+          document.getElementById('week-52-high').innerHTML = document.getElementById('week-52').max = wsData['52_week_high_price']/100;
+          document.getElementById('week-52').value = wsData['last_traded_price']/100;
+          document.getElementById('circuit-low').innerHTML = document.getElementById('circuit-limit').min = wsData['lower_circuit_limit']/100;
+          document.getElementById('circuit-high').innerHTML = document.getElementById('circuit-limit').max = wsData['upper_circuit_limit']/100;
+          document.getElementById('circuit-limit').value = wsData['last_traded_price']/100;
+          ltpData = document.getElementById('ltpData');
+          ltp = (wsData['last_traded_price']/100).toFixed(2);
+          ltpData.innerHTML = "₹ "+ltp;
+          if((ltp-close) > 0)
+          {
+            ltpData.classList.add("text-success");
+            ltpData.classList.remove("text-danger");
+            ltpData.innerHTML += " <i class='material-icons-two-tone text-success'>arrow_drop_up</i> &nbsp; <label class='h6 text-success'>+"+(ltp-close).toFixed(2)+ '(' +(((ltp/close)-1)*100).toFixed(2) + "%)</label>";
+          }
+          else
+          {
+            ltpData.classList.add("text-danger");
+            ltpData.classList.remove("text-success");
+            ltpData.innerHTML += " <i class='material-icons-two-tone text-danger'>arrow_drop_down</i> &nbsp; <label class='h6 text-danger'>"+(ltp-close).toFixed(2)+ '(' +(((ltp/close)-1)*100).toFixed(2) + "%)</label>";
+          }
+          document.getElementById("{{viewToken}}-sidebar-price").innerHTML = "₹ "+ltp;
+          document.getElementById('bid_ask_price').innerHTML = "₹ "+(wsData["best_5_buy_data"][0]['price']/100).toFixed(2) + " / " + "₹ "+(wsData["best_5_sell_data"][0]['price']/100).toFixed(2);
+          for (let i = 0; i < 5; i++) {
+            document.getElementById('bid_'+(i+1)).innerHTML = "₹ "+(wsData["best_5_buy_data"][i]['price']/100).toFixed(2);
+            document.getElementById('bid_orders_'+(i+1)).innerHTML = wsData["best_5_buy_data"][i]['no of orders'];
+            document.getElementById('bid_qty_'+(i+1)).innerHTML = wsData["best_5_buy_data"][i]['quantity'];
+            document.getElementById('offer_'+(i+1)).innerHTML = "₹ "+(wsData["best_5_sell_data"][i]['price']/100).toFixed(2);
+            document.getElementById('offer_orders_'+(i+1)).innerHTML = wsData["best_5_sell_data"][i]['no of orders'];
+            document.getElementById('offer_qty_'+(i+1)).innerHTML = wsData["best_5_sell_data"][i]['quantity'];
+          } 
+        }
+      };
+      xhttp.open("GET", "{% static 'users/'|add:tkn|add:'_stream' %}", true);
+      xhttp.send();
+  }
+  setInterval(getStream,100); 
+</script>
+
+{% comment %} <script>
+  function updateWatchlist()
+  {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        wlData = JSON.parse(this.responseText);
+        if(wlData['token'] != "{{viewToken}}")
+          document.getElementById(wlData['token']+"-sidebar-price").innerHTML = "₹ "+(wlData['last_traded_price']/100).toFixed(2);
+           
+      }
+    };
+    xhttp.open("GET", "{% static 'users/'|add:tkn|add:'_watchlist' %}", true);
+    xhttp.send();
+  }
+  setInterval(updateWatchlist, 100);
+</script> {% endcomment %}
+{% endif %}
+<!-- MDB -->
+{% comment %} <script
+  type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.js"
+></script> {% endcomment %}
+
+<!--Search suggestion-->
+<script>
+  const search_terms = [];
+  const search_tokens = [];
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      res = JSON.parse(this.responseText);
+      res.forEach(function (row){
+        if(row['symbol']==="{{viewSymbol}}")
+          window.currentScrip = row;
+        search_terms.push(row['symbol']);
+        search_tokens.push(row['token']);
+      });
+    }
+  };
+  xhttp.open("GET", "{% static 'assets/ScripMaster' %}", true);
+  xhttp.send();
+
+  function autocompleteMatch(input) {
+    if (input == '') {
+      return [];
+    }
+    var reg = new RegExp(input, 'i')
+    return search_terms.filter(function(term) {
+      if (term.match(reg)) {
+        return term;
+      }
+    });
+  }
+  
+  function showResults(val) {
+    res = document.getElementById("result");
+    res.innerHTML = '';
+    let list = '';
+    let terms = autocompleteMatch(val);
+    for (i=0; i<terms.length; i++) {
+      list += '<div class="my-2">' + terms[i] + '&emsp;&emsp;<input type="hidden" name="token" value="'+search_tokens[search_terms.indexOf(terms[i])]+'"/><button type="submit" name="symbol" value="'+terms[i]+'" class="btn btn-icon btn-light-success avtar-xs float-end"><svg class="pc-icon"> <use xlink:href="#custom-add-outline"></use> </svg></button></div>';
+    }
+    res.innerHTML = list;
+  }
+  
+</script>
+</head>
+
+<body data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-direction="ltr" data-pc-theme_contrast="" data-pc-theme="light" class="component-page">
+  <!-- [ Main Content ] start -->
+  <!-- [ Pre-loader ] start -->
+  {% include "structure/preloader.html" %}
+  <!-- [ Pre-loader ] End -->
+  <script src="{% static 'assets/js/layout-horizontal.js' %}"></script>
+  {% comment %} <nav class="navbar navbar-expand-md navbar-light default">
+    <div class="container">
+      <a class="navbar-brand" href="../index-2.html">
+        <img src="{% static 'assets/images/logo.png' %}" height=45 alt="logo" />
+      </a>
+      <button
+        class="navbar-toggler rounded"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarTogglerDemo01"
+        aria-controls="navbarTogglerDemo01"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+          <li class="nav-item px-1">
+            <a class="nav-link" href="{% url 'home' %}">Home</a>
+          </li>
+          <li class="nav-item px-1">
+            <a class="nav-link" href="{% url 'watchlist' %}">Watchlist</a>
+          </li>
+          <li class="nav-item px-1">
+            <a class="nav-link" href="{% url 'holdings' %}">Holdings</a>
+          </li>
+          <li class="nav-item px-1">
+            <a class="nav-link" href="{% url 'orders' %}">Orders</a>
+          </li>
+          <li class="nav-item px-1">
+            <a class="nav-link" href="{% url 'account' %}">Account</a>
+          </li>
+          <li class="nav-item px-1">
+            <a class="nav-link" href="{% url 'signout' %}">Signout</a>
+          </li>
+          <li class="dropdown pc-h-item">
+            <a
+              class="pc-head-link dropdown-toggle arrow-none me-0"
+              data-bs-toggle="dropdown"
+              href="#"
+              role="button"
+              aria-haspopup="false"
+              aria-expanded="false"
+            >
+              <svg class="pc-icon">
+                <use xlink:href="#custom-sun-1"></use>
+              </svg>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end pc-h-dropdown">
+              <a href="#!" class="dropdown-item" onclick="layout_change('dark')">
+                <svg class="pc-icon">
+                  <use xlink:href="#custom-moon"></use>
+                </svg>
+                <span>Dark</span>
+              </a>
+              <a href="#!" class="dropdown-item" onclick="layout_change('light')">
+                <svg class="pc-icon">
+                  <use xlink:href="#custom-sun-1"></use>
+                </svg>
+                <span>Light</span>
+              </a>
+              <a href="#!" class="dropdown-item" onclick="layout_change_default()">
+                <svg class="pc-icon">
+                  <use xlink:href="#custom-setting-2"></use>
+                </svg>
+                <span>Default</span>
+              </a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav> {% endcomment %}
+  <!-- [ Nav ] start -->
+  <!-- [ Nav ] start -->
+  {% include 'structure/sidebar.html' %}
+  
+  
+  {% comment %} <script>
+    const basicAutocomplete = document.querySelector('#search-suggestion');
+    const data = [];
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        res = JSON.parse(this.responseText);
+        res.forEach(function (row){
+          data.push(row['symbol']);
+        });
+      }
+    };
+    xhttp.open("GET", "{% static 'assets/ScripMaster' %}", true);
+    xhttp.send();
+
+    const dataFilter = (value) => {
+      return data.filter((item) => {
+        return item.toLowerCase().startsWith(value.toLowerCase());
+      });
+    };
+
+    new mdb.Autocomplete(basicAutocomplete, {
+      filter: dataFilter
+    });
+  </script> {% endcomment %}
+
+
+
+
+  <section class="component-block mt-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-xl-3">
+          <div class="offcanvas-xl offcanvas-start component-offcanvas" tabindex="-1" id="offcanvas_component">
+            <div class="offcanvas-header">
+              <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#offcanvas_component" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body p-0">
+              <div class="card component-list-card position-xl-fixed">
+                <div class="card-header">
+                  <div class="form-search" id="search-suggestion">
+                    
+                    <i class="ti ti-search"></i>
+                    <input type="text" class="form-control" name="q" placeholder="ex. ADANI, RELIANCE " id="q" onKeyUp="showResults(this.value)"/>
+                    <form action="{% url 'addToWatchlist' %}" method="POST">
+                      {% csrf_token %}
+                      <div id="result"></div>
+                    </form>
+                    
+                  </div>
+                </div>
+                <div class="card-body p-0">
+                  <ul class="list-group list-group-flush" id="watchlist">
+                    
+                    
+                    <li class="list-group-item"><h5 class="mt-3">Watchlist</h5></li>
+                    <form method="POST" action="{% url 'doWatchlist' %}">
+                      {% csrf_token %}
+                    {% for item in list %}
+                      <li>
+                        <p class="list-group-item list-group-item-action">
+                          <button type="submit" name="viewSymbol" value="{{item.symbol}}" class="btn btn-sm btn-link-secondary">{{item.symbol}}<br/><label class="float-start" id="{{item.token}}-sidebar-price"></label></button>
+                          
+                          <button type="submit" name="deleteId" value="{{item.id}}" class="btn btn-sm btn-icon btn-link-secondary float-end"><i data-feather="trash-2"></i> </button>
+                          {% comment %} <button type="submit" name="viewSymbol" value="{{item.symbol}}" class="btn btn-sm btn-link-secondary float-end">Price</button> {% endcomment %}
+                        </p>
+                      </li>
+                    {% endfor %}
+                    </form>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="col-xl-9">
+          <div class="row">
+            <div class="col-12 my-4">
+              {% if viewSymbol != None %}     
+                <label class="h2 col-3">{{viewSymbol}}</label> 
+                <label class="h4 col-6" id="ltpData"></label>
+                
+                <span class="col-3">
+                  <button type="button" class="btn btn-shadow btn-success bg-green-400 avatar-xl rounded-1" data-pc-animate="fade-in-scale" data-bs-toggle="modal"
+                    data-bs-target="#animateModal" onclick="buyModal()">&emsp; &emsp;BUY&emsp; &emsp;</button>
+                  <button type="button" class="btn btn-shadow btn-danger bg-red-400 avatar-xl rounded-1" data-pc-animate="fade-in-scale" data-bs-toggle="modal"
+                    data-bs-target="#animateModal" onclick="sellModal()">&emsp; &emsp;SELL&emsp; &emsp;</button>
+                </span>
+              {% else %}
+                <h2>Watchlist</h2>
+              {% endif %}
+              
+            </div>
+
+          </div>
+
+          <!-- [ Main Content ] start -->
+        {% if viewSymbol != None %}
+          <div class="row">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header pb-0 pt-2">
+                  <ul class="nav nav-tabs analytics-tab" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                      <button
+                        class="nav-link active"
+                        id="analytics-tab-1"
+                        data-bs-toggle="tab"
+                        data-bs-target="#analytics-tab-1-pane"
+                        type="button"
+                        role="tab"
+                        aria-controls="analytics-tab-1-pane"
+                        aria-selected="true"
+                        >Overview</button
+                      >
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button
+                        class="nav-link"
+                        id="analytics-tab-2"
+                        data-bs-toggle="tab"
+                        data-bs-target="#analytics-tab-2-pane"
+                        type="button"
+                        role="tab"
+                        aria-controls="analytics-tab-2-pane"
+                        aria-selected="false"
+                        >Analysis</button
+                      >
+                    </li>
+                     <li class="nav-item" role="presentation">
+                      <button
+                        class="nav-link"
+                        id="analytics-tab-3"
+                        data-bs-toggle="tab"
+                        data-bs-target="#analytics-tab-3-pane"
+                        type="button"
+                        role="tab"
+                        aria-controls="analytics-tab-3-pane"
+                        aria-selected="false"
+                        >Market Chart</button
+                      >
+                    </li>
+                   {% comment %} <li class="nav-item" role="presentation">
+                      <button
+                        class="nav-link"
+                        id="analytics-tab-4"
+                        data-bs-toggle="tab"
+                        data-bs-target="#analytics-tab-4-pane"
+                        type="button"
+                        role="tab"
+                        aria-controls="analytics-tab-4-pane"
+                        aria-selected="false"
+                        >Order</button
+                      >
+                    </li> {% endcomment %}
+                  </ul>
+                  
+                </div>
+              </div>
+              
+                <div class="row">
+                  <div class="col-12">
+                    
+                    <div class="tab-content" id="myTabContent">
+                      <div
+                        class="tab-pane fade show active"
+                        id="analytics-tab-1-pane"
+                        role="tabpanel"
+                        aria-labelledby="analytics-tab-1"
+                        tabindex="0"
+                      >
+                        <div id="overview-chart-1">
+                          <div class="card border-light mb-3">
+                            <div class="card-header"><h4>Stockprice Info</h4></div>
+                            <div class="card-body row">
+                              <div class="col-md-6">
+                                <div class="card">
+                                  <div class="card-body" id="myTabContent">
+                                    <div
+                                      class="tab-pane fade show active"
+                                      id="analytics-tab-1-pane"
+                                      role="tabpanel"
+                                      aria-labelledby="analytics-tab-1"
+                                      tabindex="0"
+                                    >
+                                      <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">
+                                          <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                              <i data-feather="corner-down-right"></i>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                              <div class="row g-1">
+                                                <div class="col-6">
+                                                  <h6 class="mb-0">Open</h6>
+                                                </div>
+                                                <div class="col-6 text-end">
+                                                  <h6 class="mb-1" id="open_price_of_the_day"></h6>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </li>
+                                        <li class="list-group-item">
+                                          <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                              <i data-feather="trending-up"></i>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                              <div class="row g-1">
+                                                <div class="col-6">
+                                                  <h6 class="mb-0">High</h6>
+                                                </div>
+                                                <div class="col-6 text-end">
+                                                  <h6 class="mb-1" id="high_price_of_the_day"></h6>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </li>
+                                        <li class="list-group-item">
+                                          <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                              <i data-feather="trending-down"></i>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                              <div class="row g-1">
+                                                <div class="col-6">
+                                                  <h6 class="mb-0">Low</h6>
+                                                </div>
+                                                <div class="col-6 text-end">
+                                                  <h6 class="mb-1" id="low_price_of_the_day"></h6>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </li>
+                                        <li class="list-group-item">
+                                          <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                              <i data-feather="corner-down-left"></i>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                              <div class="row g-1">
+                                                <div class="col-6">
+                                                  <h6 class="mb-0">Close</h6>
+                                                </div>
+                                                <div class="col-6 text-end">
+                                                  <h6 class="mb-1" id="closed_price"></h6>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </li>
+                                      </ul>
+                                      
+                                    </div>
+                                    
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="col-md-6">
+                                <div class="card">
+                                  <div class="card-body" id="myTabContent">
+                                    <div
+                                      class="tab-pane fade show active"
+                                      id="analytics-tab-1-pane"
+                                      role="tabpanel"
+                                      aria-labelledby="analytics-tab-1"
+                                      tabindex="0"
+                                    >
+                                      <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">
+                                          <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                              <i data-feather="activity"></i>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                              <div class="row g-1">
+                                                <div class="col-6">
+                                                  <h6 class="mb-0">Average Price</h6>
+                                                </div>
+                                                <div class="col-6 text-end">
+                                                  <h6 class="mb-1" id="average_traded_price"></h6>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </li>
+                                        <li class="list-group-item">
+                                          <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                              <i data-feather="pocket"></i>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                              <div class="row g-1">
+                                                <div class="col-6">
+                                                  <h6 class="mb-0">Bid / Ask</h6>
+                                                </div>
+                                                <div class="col-6 text-end">
+                                                  <h6 class="mb-1" id="bid_ask_price"></h6>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </li>
+                                        <li class="list-group-item">
+                                          <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                              <i data-feather="package"></i>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                              <div class="row g-1">
+                                                <div class="col-6">
+                                                  <h6 class="mb-0">Volume</h6>
+                                                </div>
+                                                <div class="col-6 text-end">
+                                                  <h6 class="mb-1" id="volume_trade_for_the_day"></h6>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </li>
+                                        {% comment %} <li class="list-group-item">
+                                          <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                              <div class="avtar avtar-s border" data-bs-toggle="tooltip" data-bs-title="143 Posts"><span>U</span> </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                              <div class="row g-1">
+                                                <div class="col-6">
+                                                  <h6 class="mb-0">Close</h6>
+                                                  <p class="text-muted mb-0"><small>08:40 pm</small></p>
+                                                </div>
+                                                <div class="col-6 text-end">
+                                                  <h6 class="mb-1">+210,000</h6>
+                                                  <p class="text-success mb-0"><i class="ti ti-arrow-up-right"></i> 10.6%</p>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </li> {% endcomment %}
+                                      </ul>
+                                      
+                                    </div>
+                                    
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-6">
+                              <div class="col-12">
+                                <div class="card card-body">
+                                  <div><h5 class='mb-4'>Upper / Lower Circuit Limit</h5>
+                                    <!--Make range slider with red,yellow,green as background linear gradient color-->
+                                    <label id="circuit-low" class="float-start"></label><label id="circuit-high" class="float-end"></label><span class="gdas-menu-left"><input type="range" name="gdas-range" class="gdas-range" id="circuit-limit" disabled></span>
+                                  </div>
+                                  {% comment %} <div class="col-6">
+                                    <span class="gdas-menu-left"><input type="range" name="gdas-range" class="gdas-range" id="week-52" disabled></span>
+                                  </div> {% endcomment %}
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-6">
+                              <div class="col-12">
+
+                                <div class="card card-body">
+                                  {% comment %} <div class="col-6">
+                                    <!--Make range slider with red,yellow,green as background linear gradient color-->
+                                    <span class="gdas-menu-left"><input type="range" name="gdas-range" class="gdas-range" id="circuit-limit" disabled></span>
+                                  </div> {% endcomment %}
+                                  <div><h5 class='mb-4'>52 Week High Low Price</h5>
+                                    <label id="week-52-low" class="float-start"></label><label id="week-52-high" class="float-end"></label><span class="gdas-menu-left"><input type="range" name="gdas-range" class="gdas-range" id="week-52" disabled></span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div class="card border-light mb-3">
+                            <div class="card-header"><h4>Market Depth</h4></div>
+                            <div class="card-body row">
+                              <div class="col-6">
+                              <table class="table table-striped text-center">
+                                <thead>
+                                  <tr>
+                                    <th>BID</th>
+                                    <th>ORDERS</th>
+                                    <th>QTY</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {% for i in '12345'|make_list %}
+                                      <tr>
+                                        <td class="text-primary" id="bid_{{i}}"></td>
+                                        <td class="text-primary" id="bid_orders_{{i}}"></td>
+                                        <td class="text-primary" id="bid_qty_{{i}}"></td>
+                                      </tr>
+                                  {% endfor %}
+                                </tbody>
+                              </table>
+                            </div>
+                            <div class="col-6">
+                              <table class="table table-striped text-center">
+                                <thead>
+                                  <tr>
+                                    <th>OFFER</th>
+                                    <th>ORDERS</th>
+                                    <th>QTY</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {% for i in '12345'|make_list %}
+                                      <tr>  
+                                        <td class="text-danger" id="offer_{{i}}"></td>
+                                        <td class="text-danger" id="offer_orders_{{i}}"></td>
+                                        <td class="text-danger" id="offer_qty_{{i}}"></td>
+                                      </tr>
+                                  {% endfor %}
+                                </tbody>
+                              </table>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="tab-pane fade" id="analytics-tab-2-pane" role="tabpanel" aria-labelledby="analytics-tab-2" tabindex="0">
+                        <div id="overview-chart-2">
+                          {% if divCandle %}
+                          <div class="card">
+                          {{ divCandle|safe }}
+                          </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                       <div class="tab-pane fade" id="analytics-tab-3-pane" role="tabpanel" aria-labelledby="analytics-tab-3" tabindex="0">
+                        <div id="overview-chart-3">
+                          {% if divLine %}
+                          <div class="card">
+                          {{ divLine|safe }}
+                          </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                      {% comment %}<div class="tab-pane fade" id="analytics-tab-4-pane" role="tabpanel" aria-labelledby="analytics-tab-4" tabindex="0">
+                        <div id="overview-chart-4">Overview4</div>
+                      </div> {% endcomment %}
+                    </div>
+                  </div>
+
+                </div>
+              
+            </div>
+          </div>
+        {% else %}
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="card error-card">
+                <div class="card-body">
+                  <div class="error-image-block">
+                    <img class="img-fluid" src="{% static 'assets/images/pages/img-error-404.svg' %}" alt="img">
+                  </div>
+                  <div class="text-center">
+                    <h1 class="mt-5"><b>Nothing to show here</b></h1>
+                    <p class="mt-2 mb-4 text-muted">Pleace click on Scrip that you want to view<br>You can add Scrip into your Watchlist by searching it!</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+            <!--Modal-->
+            <div class="modal fade modal-animate anim-fade-in-scale" id="animateModal" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content" id="bs-content">
+                  
+                    <div class="modal-header">
+                        <span class="badge" id="buy-sell-badge"></span>&emsp;
+                        <strong class="modal-title" id="modalName"></strong>&emsp;<span id="modalLTP"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+                      </div>
+                    <div class="modal-body">
+                      
+                      <div class="row">
+                        <div class="col-12">
+                          <div class="card" id="bs-card">
+                            <div class="card-header pb-0 pt-2">
+                              <ul class="nav nav-tabs analytics-tab" id="myTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                  <button
+                                    class="nav-link active"
+                                    id="bs-tab-1"
+                                    data-bs-toggle="tab"
+                                    data-bs-target="#bs-tab-1-pane"
+                                    type="button"
+                                    role="tab"
+                                    aria-controls="bs-tab-1-pane"
+                                    aria-selected="true"
+                                    >Regular</button
+                                  >
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                  <button
+                                    class="nav-link"
+                                    id="bs-tab-2"
+                                    data-bs-toggle="tab"
+                                    data-bs-target="#bs-tab-2-pane"
+                                    type="button"
+                                    role="tab"
+                                    aria-controls="bs-tab-2-pane"
+                                    aria-selected="false"
+                                    >Stoploss</button
+                                  >
+                                </li>
+                              </ul> 
+                            </div>
+                            <div class="row m-3">
+                              <div class="col-12">
+                                
+                                <div class="tab-content" id="myTabContent">
+
+                                  <div class="tab-pane fade show active" id="bs-tab-1-pane" role="tabpanel" aria-labelledby="bs-tab-1" tabindex="0">
+                                    <form method="POST" action="{% url 'rgOrder' %}">
+                                      {% csrf_token %}
+                                      <input type="hidden" name="tradingsymbol" value="{{viewSymbol}}">
+                                      <input type="hidden" name="symboltoken">
+                                      <input type="hidden" name="transactiontype">
+                                      <div id="bs-regular">
+                                        <table cellpadding="10">
+                                          <tr>
+                                            <td>Product Type</td>
+                                            <td>Quantity</td>
+                                            <td colspan=3>Price</td>
+                                          </tr>
+                                          <tr>
+                                            <td>
+                                              <div class="btn-group" role="group">
+                                              <input type="radio" class="btn-check" id="btnrdo1" name="producttype" value="INTRADAY" checked>
+                                              <label class="btn btn-outline-secondary form-control" for="btnrdo1">Intraday</label>
+                                              <input type="radio" class="btn-check" id="btnrdo2" name="producttype" value="DELIVERY">
+                                              <label class="btn btn-outline-secondary form-control" for="btnrdo2">Delivery</label>
+                                              </div>
+                                            </td>
+                                            <td>
+                                              <div class="input-group">
+                                                <input type="number" name="quantity" value="0" min="0" class="form-control" placeholder="Quantity" aria-label="Quantity" aria-describedby="modalQty">
+                                                {% comment %} <span class="input-group-text" id="modalQty">Qty</span> {% endcomment %}
+                                              </div>
+                                            </td>
+                                            <td   colspan=3>
+                                              <!--Make border of below div green using Bootstrap-->
+                                              <div class="input-group">
+                                                <input type="text" name="price" value="0" class="form-control" placeholder="Price" aria-label="Price" aria-describedby="modalPrice" disabled>
+                                                {% comment %} <span class="input-group-text" id="modalPrice">Price</span> {% endcomment %}
+                                              </div>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td></td>
+                                            <td></td>
+                                            
+                                            <td>Limit</td>
+                                            <td>
+                                              <div class="form-check form-switch custom-switch-v1 mb-2">        
+                                              <input type="checkbox" class="form-check-input" name="ordertype" id="rgRadio" onchange='orderTypeChanged(this)'>                  
+                                              </div>
+                                            </td>
+                                            <td>Market</td>
+                                          </tr>
+                                        </table>
+                                      </div>
+                                      <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn shadow-2" id="bsRGButton" onclick="sendPrice()"></button>
+                                      </div>
+                                    </form>
+                                  </div>
+
+                                  <div class="tab-pane fade" id="bs-tab-2-pane" role="tabpanel" aria-labelledby="bs-tab-2" tabindex="0">
+                                    <form method="POST" action="{% url 'slOrder' %}">
+                                      {% csrf_token %}
+                                      <input type="hidden" name="tradingsymbol" value="{{viewSymbol}}">
+                                      <input type="hidden" name="symboltoken">
+                                      <input type="hidden" name="transactiontype">
+                                      
+                                      <div id="bs-stoploss">
+                                        <table cellpadding="10">
+                                          <tr>
+                                            <td>Product Type</td>
+                                            <td>Quantity</td>
+                                            <td>SL Trigger Price</td>
+                                            <td colspan=3>SL Limit Price</td>
+                                          </tr>
+                                          <tr>
+                                            <td>
+                                              <div class="btn-group" role="group">
+                                                <input type="radio" class="btn-check" id="btnrdo3" name="producttype" value="INTRADAY" checked>
+                                                <label class="btn btn-outline-secondary form-control" for="btnrdo3">INT</label>
+                                                <input type="radio" class="btn-check" id="btnrdo4" name="producttype" value="DELIVERY">
+                                                <label class="btn btn-outline-secondary form-control" for="btnrdo4">DEL</label>
+                                              </div>
+
+                                              {% comment %} <input type="radio" class="btn-check" id="btn-radio2" autocomplete="off">
+                                              <label class="btn btn-success" for="btn-radio">Intraday</label>
+                                              <input type="radio" class="btn-check" id="btn-radio2" autocomplete="off">
+                                              <label class="btn btn-success" for="btn-radio">Delivery</label> {% endcomment %}
+                                            </td>
+                                            <td>
+                                              <div class="input-group">
+                                                <input type="number" name="quantity" value="0" min="0" class="form-control btn-outline-success" placeholder="Quantity" aria-label="Quantity" aria-describedby="modalQty">
+                                                {% comment %} <span class="input-group-text" id="modalQty">Qty</span> {% endcomment %}
+                                              </div>
+                                            </td>
+                                            <td>
+                                              <!--Make border of below div green using Bootstrap-->
+                                              <div class="input-group">
+                                                <input type="text" name="triggerprice" value="0" class="form-control" placeholder="Price" aria-label="Price" aria-describedby="modalPrice">
+                                                {% comment %} <span class="input-group-text" id="modalPrice">Price</span> {% endcomment %}
+                                              </div>
+                                            </td>
+                                            <td colspan=3>
+                                              <!--Make border of below div green using Bootstrap-->
+                                              <div class="input-group">
+                                                <input type="text" name="price" value="0" class="form-control" placeholder="Price" aria-label="Price" aria-describedby="modalPrice" disabled>
+                                                {% comment %} <span class="input-group-text" id="modalPrice">Price</span> {% endcomment %}
+                                              </div>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td>Limit</td>
+                                            <td>
+                                              <div class="form-check form-switch custom-switch-v1 mb-2">        
+                                              <input type="checkbox" class="form-check-input input-light-success" name="ordertype" id="slRadio" onchange='orderTypeChanged(this)'>                  
+                                              </div>
+                                            </td>
+                                            <td>Market</td>
+                                          </tr>
+                                        </table>
+                                      </div>
+                                      <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn shadow-2" id="bsSLButton" onclick="sendPrice()"></button>
+                                      </div>
+                                    </form>
+                                  </div>
+
+                                </div>
+                              </div>
+                            </div>
+
+                          </div>
+                          
+                            
+                        </div>
+                      </div>
+                    </div>
+                    {% comment %}  {% endcomment %}
+                </div>
+              </div>
+            </div>
+            <!--Modal Ends-->
+          <!-- [ Main Content ] end -->
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- [ Main Content ] end -->
+  {% include 'structure/footer.html' %}
+  <!-- Required Js -->
+  {% include "structure/core.html" %}
+
+  
+  
+  
+  
+  <script>layout_change(localStorage.getItem("mode"));</script>
+  <script>layout_sidebar_change('false');</script>
+  <script>change_box_container('false');</script>
+  <script>layout_caption_change('true');</script>
+  <script>layout_rtl_change('false');</script>
+  <script>preset_change("preset-1");</script>
+  <script src="{% static 'cdnjs/ajax/libs/highlight.js/9.12.0/highlight.min.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/clipboard.min.js' %}"></script>
+  <script src="{% static 'assets/js/component.js' %}"></script>
+  {% comment %} <script>
+      // pc-component
+      var elem = document.querySelectorAll('.component-list-card a');
+      for (var l = 0; l < elem.length; l++) {
+          var pageUrl = window.location.href.split(/[?#]/)[0];
+          if (elem[l].href == pageUrl && elem[l].getAttribute('href') != '') {
+              elem[l].classList.add('active');
+          }
+      }
+      document.querySelector('#compo-menu-search').addEventListener("keyup", function () {
+          var tval = document.querySelector('#compo-menu-search').value.toLowerCase();
+          var elem = document.querySelectorAll('.component-list-card a');
+          for (var l = 0; l < elem.length; l++) {
+              var aval = elem[l].innerHTML.toLowerCase();
+              var n = aval.indexOf(tval);
+              if (n !== -1) {
+                  elem[l].style.display= "block";
+              } else {
+                  elem[l].style.display= "none";
+              }
+          }
+      });
+  </script> {% endcomment %}
+  <!-- [Page Specific JS] start -->
+  <!-- range slider Js -->
+  {% comment %} <script src="{% static 'assets/js/plugins/bootstrap-slider.min.js' %}"></script>
+  <script src="{% static 'assets/js/pages/ac-rangeslider.js' %}"></script> {% endcomment %}
+  <!-- Sweet Alert -->
+  {% comment %} <script src="{% static 'assets/js/plugins/sweetalert2.all.min.js' %}"></script>
+  <script src="{% static 'assets/js/pages/ac-alert.js' %}"></script> {% endcomment %}
+  
+  {% comment %} <script>
+    
+    var animateModal = document.getElementById('animateModal');
+    animateModal.addEventListener('show.bs.modal', function (event) {
+      var button = event.relatedTarget;
+      var recipient = button.getAttribute('data-pc-animate');
+      var modalTitle = animateModal.querySelector('.modal-title');
+      modalTitle.textContent = "{{viewSymbol}}";
+      console.log(window.wsData);
+      console.log(window.currentSymbol, window.currentToken);
+      animateModal.classList.add('anim-' + recipient);
+      if (recipient == 'let-me-in' || recipient == 'make-way' || recipient == 'slip-from-top') {
+        document.body.classList.add('anim-' + recipient);
+      }
+    });
+    animateModal.addEventListener('hidden.bs.modal', function (event) {
+      removeClassByPrefix(animateModal, 'anim-');
+      removeClassByPrefix(document.body, 'anim-');
+    });
+
+    function removeClassByPrefix(node, prefix) {
+      for (let i = 0; i < node.classList.length; i++) {
+        let value = node.classList[i];
+        if (value.startsWith(prefix)) {
+          node.classList.remove(value);
+        }
+      }
+    }
+  </script> {% endcomment %}
+<script>
+    
+  function doInit()
+  {
+    document.getElementById('modalName').innerHTML = window.currentScrip['name'];
+    document.getElementById('modalLTP').innerHTML = '₹ ' + (window.wsData['last_traded_price']/100).toFixed(2);
+    var price = document.getElementsByName('price');
+    price[0].value = (window.wsData['last_traded_price']/100).toFixed(2);
+    price[1].value = (window.wsData['last_traded_price']/100).toFixed(2);
+    document.getElementsByName("symboltoken")[0].value = window.currentScrip['token'];
+    document.getElementsByName("symboltoken")[1].value = window.currentScrip['token'];
+  }
+  function buyModal()
+  {
+    /*document.getElementById('modalName').innerHTML = window.currentScrip['name'];
+    document.getElementById('modalLTP').innerHTML = '₹ ' + (window.wsData['last_traded_price']/100).toFixed(2);
+    var price = document.getElementsByName('price');
+    price[0].value = (window.wsData['last_traded_price']/100).toFixed(2);
+    price[1].value = (window.wsData['last_traded_price']/100).toFixed(2);
+    document.getElementsByName("symboltoken")[0].value = window.currentScrip['token'];
+    document.getElementsByName("symboltoken")[1].value = window.currentScrip['token'];*/
+    doInit()
+    var buy_sell_badge = document.getElementById('buy-sell-badge');
+    buy_sell_badge.classList.add("bg-success");
+    buy_sell_badge.classList.remove("bg-danger");
+    buy_sell_badge.innerHTML = "BUY";
+    var bsCard = document.getElementById('bs-card');
+    bsCard.classList.add("border-success");
+    bsCard.classList.remove("border-danger");
+    var rgRadio = document.getElementById('rgRadio');
+    rgRadio.classList.add("input-light-success");
+    rgRadio.classList.remove("input-light-danger");
+    var slRadio = document.getElementById('slRadio');
+    slRadio.classList.add("input-light-success");
+    slRadio.classList.remove("input-light-danger");
+    var  bsRGButton = document.getElementById('bsRGButton');
+    bsRGButton.classList.add("btn-success");
+    bsRGButton.classList.remove("btn-danger");
+    bsRGButton.innerHTML = "Place Buy Order";
+    var bsSLButton = document.getElementById('bsSLButton');
+    bsSLButton.classList.add("btn-success");
+    bsSLButton.classList.remove("btn-danger");
+    bsSLButton.innerHTML = "Place Buy Order";
+    document.getElementsByName("transactiontype")[0].value = "BUY";
+    document.getElementsByName("transactiontype")[1].value = "BUY";
+  }
+
+  function sellModal()
+  {
+    /*document.getElementById('modalName').innerHTML = window.currentScrip['name'];
+    document.getElementById('modalLTP').innerHTML = '₹ ' + (window.wsData['last_traded_price']/100).toFixed(2);
+    var price = document.getElementsByName('price');
+    price[0].value = (window.wsData['last_traded_price']/100).toFixed(2);
+    price[1].value = (window.wsData['last_traded_price']/100).toFixed(2);
+    document.getElementsByName("symboltoken")[0].innerHTML = window.currentScrip['token'];
+    document.getElementsByName("symboltoken")[1].innerHTML = window.currentScrip['token'];*/
+    doInit()
+    var buy_sell_badge = document.getElementById('buy-sell-badge');
+    buy_sell_badge.classList.add("bg-danger");
+    buy_sell_badge.classList.remove("bg-success");
+    buy_sell_badge.innerHTML = "SELL";
+    var bsCard = document.getElementById('bs-card');
+    bsCard.classList.add("border-danger");
+    bsCard.classList.remove("border-success");
+    var rgRadio = document.getElementById('rgRadio');
+    rgRadio.classList.add("input-light-danger");
+    rgRadio.classList.remove("input-light-success");
+    var slRadio = document.getElementById('slRadio');
+    slRadio.classList.add("input-light-danger");
+    slRadio.classList.remove("input-light-success");
+    var bsRGButton = document.getElementById('bsRGButton');
+    bsRGButton.classList.add("btn-danger");
+    bsRGButton.classList.remove("btn-success");
+    bsRGButton.innerHTML = "Place Sell Order";
+    var bsSLButton = document.getElementById('bsSLButton');
+    bsSLButton.classList.add("btn-danger");
+    bsSLButton.classList.remove("btn-success");
+    bsSLButton.innerHTML = "Place Sell Order";
+    
+    document.getElementsByName("transactiontype")[0].value = "SELL";
+    document.getElementsByName("transactiontype")[1].value = "SELL";
+  }
+
+  function sendPrice()
+  {
+    var price = document.getElementsByName('price');
+    price[0].disabled = false;
+    price[1].disabled = false;
+  }
+  function orderTypeChanged(event)
+  {
+    if(event.checked)
+    {
+      var price = document.getElementsByName('price');
+      price[0].disabled = true;
+      price[1].disabled = true;
+    }
+    else
+    {
+      var price = document.getElementsByName('price');
+      price[0].disabled = false;
+      price[1].disabled = false;
+    }
+  }
+</script>
+
+  {% comment %} <script>
+    var exampleModal = document.getElementById('exampleModal');
+    exampleModal.addEventListener('show.bs.modal', function (event) {
+      // Button that triggered the modal
+      var button = event.relatedTarget;
+      // Extract info from data-bs-* attributes
+      var recipient = button.getAttribute('data-bs-whatever');
+      // If necessary, you could initiate an AJAX request here
+      // and then do the updating in a callback.
+      //
+      // Update the modal's content.
+      var modalTitle = exampleModal.querySelector('.modal-title');
+      var modalBodyInput = exampleModal.querySelector('.modal-body input');
+
+      modalTitle.textContent = 'New message to ' + recipient;
+      modalBodyInput.value = recipient;
+    });
+  </script> {% endcomment %}
+  <!-- [Page Specific JS] end -->
+  
+</body>
+
+</html>

@@ -1,0 +1,128 @@
+{% load static %}
+
+<nav class="pc-sidebar">
+    <div class="navbar-wrapper">
+      <div class="m-header col-12">
+        <a href="{% url 'home' %}" class="b-brand text-primary col-1">
+          <!-- ========   Change your logo from here   ============ -->
+          <img src="{% static 'assets/images/logo.png' %}" height=45/>
+        </a>
+        {% if request.path|slice:"-9:" == 'watchlist' or request.path|slice:"-10:" == 'watchlist/' or request.path|slice:"-2:" == 'EQ' or request.path|slice:"-3:" == 'EQ/' %}
+        <div class="col-10"></div>
+            <a href="#" class="pc-link" onclick="mode_change('dark')">
+              <span class="pc-micon">
+                <svg class="pc-icon">
+                  <use xlink:href="#custom-moon"></use>
+                </svg>
+              </span>
+            </a>
+            <a href="#" class="pc-link" onclick="mode_change('light')">
+              <span class="pc-micon">
+                <svg class="pc-icon">
+                  <use xlink:href="#custom-sun-1"></use>
+                </svg>
+              </span>
+            </a>
+        
+        {% endif %}
+        
+      </div>
+      
+      <div class="navbar-content">
+        
+        
+
+        <ul class="pc-navbar">
+          {% comment %} <li class="pc-item pc-caption">
+            <label>Dashboard</label>
+            <svg class="pc-icon">
+              <use xlink:href="#custom-presentation-chart"></use>
+            </svg>
+          </li> {% endcomment %}
+          <li class="pc-item">
+            <a href="{% url 'home' %}" class="pc-link">
+              <span class="pc-micon">
+                <svg class="pc-icon">
+                  <use xlink:href="#custom-home"></use>
+                </svg>
+              </span>
+              <span class="pc-mtext">Home</span>
+            </a>
+          </li>
+          <li class="pc-item">
+            <a href="{% url 'watchlist' %}" class="pc-link">
+              <span class="pc-micon">
+                <svg class="pc-icon">
+                  <use xlink:href="#custom-presentation-chart"></use>
+                </svg>
+              </span>
+              <span class="pc-mtext">Watchlist</span>
+            </a>
+          </li>
+          <li class="pc-item">
+            <a href="{% url 'holdings' %}" class="pc-link">
+              <span class="pc-micon">
+                <svg class="pc-icon">
+                  <use xlink:href="#custom-shopping-bag"></use>
+                </svg>
+              </span>
+              <span class="pc-mtext">Holdings</span>
+            </a>
+          </li>
+          <li class="pc-item">
+            <a href="{% url 'orders' %}" class="pc-link">
+              <span class="pc-micon">
+                <svg class="pc-icon">
+                  <use xlink:href="#custom-fatrows"></use>
+                </svg>
+              </span>
+              <span class="pc-mtext">Orders</span>
+            </a>
+          </li>
+          <li class="pc-item">
+            <a href="{% url 'account' %}" class="pc-link">
+              <span class="pc-micon">
+                <svg class="pc-icon">
+                  <use xlink:href="#custom-user-square"></use>
+                </svg>
+              </span>
+              <span class="pc-mtext">Account</span>
+            </a>
+          </li>
+          <li class="pc-item">
+            <a href="{% url 'signout' %}" class="pc-link">
+              <span class="pc-micon">
+                <svg class="pc-icon">
+                  <use xlink:href="#custom-logout"></use>
+                </svg>
+              </span>
+              <span class="pc-mtext">Signout</span>
+            </a>
+          </li>
+          {% comment %} <li class="pc-item float-end">
+            <a href="#" class="pc-link" onclick="mode_change('dark')">
+              <span class="pc-micon">
+                <svg class="pc-icon">
+                  <use xlink:href="#custom-moon"></use>
+                </svg>
+              </span>
+              <span class="pc-mtext">Dark</span>
+            </a>
+          </li>
+          <li class="pc-item float-end">
+            <a href="#" class="pc-link" onclick="mode_change('light')">
+              <span class="pc-micon">
+                <svg class="pc-icon">
+                  <use xlink:href="#custom-sun-1"></use>
+                </svg>
+              </span>
+              <span class="pc-mtext">Light</span>
+            </a>
+          </li> {% endcomment %}
+        </ul>
+        
+      </div>
+      
+    </div>
+  </nav>
+  

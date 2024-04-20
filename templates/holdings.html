@@ -1,0 +1,150 @@
+{% load static %}
+{% load mathfilters %}
+<!DOCTYPE html>
+<html lang="en">
+{% include "structure/head.html" %}
+  <!-- [Head] end -->
+  <!-- [Body] Start -->
+  <body data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-direction="ltr" data-pc-theme_contrast="" data-pc-theme="light">
+    <script>
+      function getData() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+              data = JSON.parse(this.responseText)['data'];
+              data.forEach(function (row){
+                if(document.getElementById(row.tradingsymbol+'_symbol') != null)
+                {
+                  document.getElementById(row.tradingsymbol+'_quantity').innerHTML = row.quantity;
+                  document.getElementById(row.tradingsymbol+'_ltp').innerHTML = (row.ltp).toFixed(2);
+                  document.getElementById(row.tradingsymbol+'_averageprice').innerHTML = (row.averageprice).toFixed(2);
+                  document.getElementById(row.tradingsymbol+'_inv').innerHTML = (row.averageprice*row.quantity).toFixed(2);
+                  document.getElementById(row.tradingsymbol+'_market').innerHTML = (row.ltp*row.quantity).toFixed(2);
+                  document.getElementById(row.tradingsymbol+'_overall').innerHTML = ((row.ltp-row.averageprice)*row.quantity).toFixed(2);
+                  document.getElementById(row.tradingsymbol+'_days').innerHTML = ((row.ltp-row.close)*row.quantity).toFixed(2);
+                }
+              });
+          }
+        };
+        xhttp.open("GET", "https://apiconnect.angelbroking.com/rest/secure/angelbroking/portfolio/v1/getHolding", true);
+        xhttp.setRequestHeader('Authorization',"{{auth.Authorization}}");
+        xhttp.setRequestHeader('Content-Type','application/json');
+        xhttp.setRequestHeader('Accept','application/json');
+        xhttp.setRequestHeader('X-UserType','USER');
+        xhttp.setRequestHeader('X-SourceID','WEB');
+        xhttp.setRequestHeader('X-ClientLocalIP','CLIENT_LOCAL_IP');
+        xhttp.setRequestHeader('X-ClientPublicIP','CLIENT_PUBLIC_IP');
+        xhttp.setRequestHeader('X-MACAddress','MAC_ADDRESS');
+        xhttp.setRequestHeader('X-PrivateKey',"{{auth.apikey}}");
+        xhttp.send();
+      }
+      setInterval(getData, 1200);
+    </script>
+    <!-- [ Pre-loader ] start -->
+    {% include "structure/preloader.html" %}
+<!-- [ Pre-loader ] End -->
+ <!-- [ Sidebar Menu ] start -->
+{% include "structure/sidebar.html" %}
+<!-- [ Sidebar Menu ] end -->
+ <!-- [ Header Topbar ] start -->
+{% include "structure/header.html" %}
+<!-- [ Header ] end -->
+
+
+
+    <!-- [ Main Content ] start -->
+    <section class="pc-container">
+      <div class="pc-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+          <div class="page-block">
+            <div class="row align-items-center">
+              <div class="col-md-12">
+                <ul class="breadcrumb mb-3">
+                  <li class="breadcrumb-item"><a href="javascript: void(0)">Dashboard</a></li>
+                  <li class="breadcrumb-item" aria-current="page">Holdings</li>
+                </ul>
+              </div>
+              <div class="col-md-12">
+                <div class="page-header-title">
+                  <h2 class="mb-0">Holdings</h2>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+
+
+        <!-- [ Main Content ] start -->
+        <div class="row">
+          <!-- [ basic-table ] start -->
+          <div class="col-xl-12">
+            <div class="card">
+              
+              <div class="card-body table-border-style">
+                <div class="table-responsive">
+                  <table class="table" id="pc-dt-simple">
+                    <thead>
+                      <tr>
+                        <th>Stock Name </th>
+                        <th>Quantity </th>
+                        <th>LTP </th>
+                        <th>ATP </th>
+                        <th>Inv. Amount </th>
+                        <th>Market Value </th>
+                        <th>Overall Gain </th>
+                        <th>Days Gain </th>
+                      </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                      {% for row in data %}
+                      <tr>
+                        <td id="{{row.tradingsymbol}}_symbol"><strong>{{row.tradingsymbol}}</strong></td>
+                        <td id="{{row.tradingsymbol}}_quantity">{{row.quantity}}</td>
+                        <td id="{{row.tradingsymbol}}_ltp">{{row.ltp|floatformat:2}}</td>
+                        <td id="{{row.tradingsymbol}}_averageprice">{{row.averageprice|floatformat:2}}</td>
+                        <td id="{{row.tradingsymbol}}_inv">{{row.averageprice|mul:row.quantity|floatformat:2}}</td>
+                        <td id="{{row.tradingsymbol}}_market">{{row.ltp|mul:row.quantity|floatformat:2}}</td>
+                        <td id="{{row.tradingsymbol}}_overall">{{row.ltp|sub:row.averageprice|mul:row.quantity|floatformat:2}}</td>
+                        <td id="{{row.tradingsymbol}}_days">{{row.ltp|sub:row.close|mul:row.quantity|floatformat:2}}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- [ basic-table ] end -->
+        </div>
+        <!-- [ Main Content ] end -->
+      </div>
+    </section>
+    <!-- [ Main Content ] end -->
+    {% include "structure/footer.html" %}
+ <!-- Required Js -->
+{% include 'structure/core.html' %}
+
+
+
+
+
+<script>layout_change(localStorage.getItem('mode'));</script>
+<script>layout_sidebar_change('false');</script>
+<script>change_box_container('false');</script>
+<script>layout_caption_change('true');</script>
+<script>layout_rtl_change('false');</script>
+<script>preset_change("preset-1");</script>
+
+
+
+    <!-- [Page Specific JS] start -->
+    <script src="{% static 'assets/js/plugins/simple-datatables.js' %}"></script>
+    <script>
+      const dataTable = new simpleDatatables.DataTable('#pc-dt-simple');
+    </script>
+    <!-- [Page Specific JS] end -->
+  </body>
+  <!-- [Body] end -->
+</html>

@@ -1,0 +1,46 @@
+{% extends 'structure/base.html' %}
+{% load static %}
+{% block content %}
+<div class="page-header">
+    <div class="page-block">
+      <div class="row align-items-center">
+        <div class="col-md-12">
+          <ul class="breadcrumb mb-3">
+            {% comment %} <li class="breadcrumb-item"><a href="../navigation/index.html">Home</a></li> {% endcomment %}
+            <li class="breadcrumb-item"><a href="javascript: void(0)">Dashboard</a></li>
+            <li class="breadcrumb-item" aria-current="page">Home</li>
+          </ul>
+        </div>
+        <div class="col-md-12">
+          <div class="page-header-title">
+            <h2 class="mb-0">Home</h2>
+          </div>
+          
+          <div class="pc-component mt-4">
+            {% for article in articles %}
+            <div class="card">
+              <div class="row g-0">
+                {% if article.urlToImage != None %}
+                <div class="col-2">
+                  <img src="{{article.urlToImage}}" class="img-fluid rounded-start" alt="...">
+                </div>
+                {% endif %}
+                
+                <div class="col-10">
+                  <div class="card-body">
+                    <h5 class="card-title">{{article.title}}</h5>
+                    <p class="card-text">{{article.description}}</p>
+                    <p class="card-text"><strong>Author - {{article.author}}</strong></p>
+                    <p class="card-text"><small class="text-muted">Published At - {{article.publishedAt}}</small><label class="float-end"><a class="btn btn-primary btn-sm rounded-1" role="button" href="{{article.url}}" target="_blank">Read Full Article</a></label></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

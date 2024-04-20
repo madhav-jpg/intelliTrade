@@ -1,0 +1,549 @@
+{% extends 'structure/base.html' %}
+{% load static %}
+{% block content %}
+<div class="page-header">
+    <div class="page-block">
+      <div class="row align-items-center">
+        <div class="col-md-12">
+          <ul class="breadcrumb mb-3">
+            {% comment %} <li class="breadcrumb-item"><a href="../navigation/index.html">Home</a></li> {% endcomment %}
+            <li class="breadcrumb-item"><a href="javascript: void(0)">Dashboard</a></li>
+            <li class="breadcrumb-item" aria-current="page">Orders</li>
+          </ul>
+        </div>
+        <div class="col-md-12">
+          <div class="page-header-title">
+            <h2 class="mb-0">Orders</h2>
+          </div>
+          <div class="row mt-3">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header pb-0 pt-2">
+                  <ul class="nav nav-tabs analytics-tab" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                      <button
+                        class="nav-link active"
+                        id="analytics-tab-1"
+                        data-bs-toggle="tab"
+                        data-bs-target="#analytics-tab-1-pane"
+                        type="button"
+                        role="tab"
+                        aria-controls="analytics-tab-1-pane"
+                        aria-selected="true"
+                        >Order Book</button
+                      >
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button
+                        class="nav-link"
+                        id="analytics-tab-2"
+                        data-bs-toggle="tab"
+                        data-bs-target="#analytics-tab-2-pane"
+                        type="button"
+                        role="tab"
+                        aria-controls="analytics-tab-2-pane"
+                        aria-selected="false"
+                        >Trade Book</button
+                      >
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button
+                        class="nav-link"
+                        id="analytics-tab-3"
+                        data-bs-toggle="tab"
+                        data-bs-target="#analytics-tab-3-pane"
+                        type="button"
+                        role="tab"
+                        aria-controls="analytics-tab-3-pane"
+                        aria-selected="false"
+                        >Rejected / Cancelled Orders</button
+                      >
+                    </li>
+                  </ul> 
+                </div>
+                <div class="card-body row">
+                  <div class="col-12">
+                    
+                    <div class="tab-content" id="myTabContent">
+                      <div class="tab-pane fade show active" id="analytics-tab-1-pane" role="tabpanel" aria-labelledby="analytics-tab-1" tabindex="0">
+                        <div id="overview-chart-1">
+                          {% if orderBook|length > 0 %}
+                          <div class="table-border-style">
+                            <div class="table-responsive">
+                              <table class="table table-hover text-center">
+                                <thead>
+                                  <tr>
+                                    <th>Action</th>
+                                    <th>Symbol Name</th>
+                                    <th>Product Type</th>
+                                    <th>Order Type</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Change</th>
+                                    <th>Status</th>
+                                    
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <form method="POST" action="{% url 'cancelOrder' %}">
+                                    {% csrf_token %}
+                                    {% for order in orderBook %}
+                                    {% if order.status == 'open' %}
+                                    <tr>
+                                      <td>
+                                        {% if order.transactiontype == "BUY" %}
+                                          <label class="text-success">
+                                        {% else %}
+                                          <label class="text-danger">
+                                        {% endif %}{{order.transactiontype|title}}</label>
+                                      </td>
+                                      <td><strong>{{order.tradingsymbol}}</strong>&emsp;<span>{{order.exchange}}</span></td>
+                                      <td>{{order.producttype|title}}</td>
+                                      <td>{{order.ordertype|title}}</td>
+                                      <td>{{order.price}}</td>
+                                      <td>{{order.quantity}}</td>
+                                      <td>
+                                        <button type="button" name="modify" class="btn btn-icon btn-light-warning" data-pc-animate="fade-in-scale" data-bs-toggle="modal"
+                                        data-bs-target="#animateModal" onclick="loadModal({{order|safe}})"><i data-feather="edit-2"></i></button>
+                                        <button type="submit" name="{{order.variety}}" value="{{order.orderid}}" class="btn btn-icon btn-light-danger"><i data-feather="trash-2"></i></button>
+                                      </td>
+                                      <td>
+                                        <label class="badge bg-light-primary">{{order.status.upper}}</label>
+                                      </td>
+                                    </tr>
+                                    {% endif %}
+                                    {% endfor %}
+                                  </form>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                          {% else %}
+                          <div class="row">
+                            <div class="col-sm-12">
+                              <div class="card error-card">
+                                <div class="card-body">
+                                  <div class="error-image-block">
+                                    <img class="img-fluid mw-50 mx-auto" width="40%" src="{% static 'assets/images/pages/img-no-data.png' %}" alt="img">
+                                  </div>
+                                  <div class="text-center">
+                                    <h3 class="mt-5"><b>No Pending orders to show</b></h3>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                      <div class="tab-pane fade" id="analytics-tab-2-pane" role="tabpanel" aria-labelledby="analytics-tab-2" tabindex="0">
+                        <div id="overview-chart-2">
+                          {% if tradeBook|length > 0 %}
+                          <div class="table-border-style">
+                            <div class="table-responsive">
+                              <table class="table table-hover text-center">
+                                <thead>
+                                  <tr>
+                                    <th>Action</th>
+                                    <th>Symbol Name</th>
+                                    <th>Product Type</th>
+                                    <th>Order Type</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Status</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {% for order in tradeBook %}
+                                  {% if order.status == 'complete' %}
+                                  <tr>
+                                    <td>
+                                      {% if order.transactiontype == "BUY" %}
+                                        <label class="text-success">
+                                      {% else %}
+                                        <label class="text-danger">
+                                      {% endif %}{{order.transactiontype|title}}</label>
+                                    </td>
+                                    <td><strong>{{order.tradingsymbol}}</strong>&emsp;<span>{{order.exchange}}</span></td>
+                                    <td>{{order.producttype|title}}</td>
+                                    <td>{{order.ordertype|title}}</td>
+                                    <td>{{order.price}}</td>
+                                    <td>{{order.quantity}}</td>
+                                    <td>
+                                      <label class="badge bg-light-success">{{order.status.upper}}</label>
+                                    </td>
+                                  </tr>
+                                  {% endif %}
+                                  {% endfor %}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                          {% else %}
+                          <div class="row">
+                            <div class="col-sm-12">
+                              <div class="card error-card">
+                                <div class="card-body">
+                                  <div class="error-image-block">
+                                    <img class="img-fluid mw-50 mx-auto" width="40%" src="{% static 'assets/images/pages/img-no-data.png' %}" alt="img">
+                                  </div>
+                                  <div class="text-center">
+                                    <h3 class="mt-5"><b>No Completed orders to show</b></h3>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                      <div class="tab-pane fade" id="analytics-tab-3-pane" role="tabpanel" aria-labelledby="analytics-tab-3" tabindex="0">
+                        <div id="overview-chart-3">
+                          {% if crOrders|length > 0 %}
+                          <div class="table-border-style">
+                            <div class="table-responsive">
+                              <table class="table table-hover text-center">
+                                <thead>
+                                  <tr>
+                                    <th>Action</th>
+                                    <th>Symbol Name</th>
+                                    <th>Product Type</th>
+                                    <th>Order Type</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Status</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {% for order in crOrders %}
+                                  {% if order.status == 'cancelled' or order.status == 'rejected' %}
+                                    <tr>
+                                      <td>
+                                        {% if order.transactiontype == "BUY" %}
+                                          <label class="text-success">
+                                        {% else %}
+                                          <label class="text-danger">
+                                        {% endif %}{{order.transactiontype|title}}</label>
+                                      </td>
+                                      <td><strong>{{order.tradingsymbol}}</strong>&emsp;<span>{{order.exchange}}</span></td>
+                                      <td>{{order.producttype|title}}</td>
+                                      <td>{{order.ordertype|title}}</td>
+                                      <td>{{order.price}}</td>
+                                      <td>{{order.quantity}}</td>
+                                      <td>
+                                        {% if order.status == 'rejected' %}
+                                        <label class="badge bg-light-warning">
+                                        {% else %}
+                                        <label class="badge bg-light-info">
+                                        {% endif %}
+                                        {{order.status.upper}}</label>
+                                      </td>
+                                    </tr>
+                                    {%if order.status == 'rejected' %}
+                                    <tr class="">
+                                      <td colspan="7" class="text-center border-top-0">
+                                        <label class="badge bg-light-danger">{{order.text}}</label>
+                                      </td>
+                                    </tr>
+                                    {% endif %}
+                                  {% endif %}
+                                  {% endfor %}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                          {% else %}
+                          <div class="row">
+                            <div class="col-sm-12">
+                              <div class="card error-card">
+                                <div class="card-body">
+                                  <div class="error-image-block">
+                                    <img class="img-fluid mw-50 mx-auto" width="40%" src="{% static 'assets/images/pages/img-no-data.png' %}" alt="img">
+                                  </div>
+                                  <div class="text-center">
+                                    <h3 class="mt-5"><b>No Cancelled or Rejected orders to show</b></h3>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Modal-->
+  <div class="modal fade modal-animate anim-fade-in-scale" id="animateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content border-warning" id="bs-content">
+        
+          <div class="modal-header">
+              <span class="badge" id="buy-sell-badge"></span>&emsp;
+              <strong class="modal-title" id="modalName"></strong>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+            </div>
+          <div class="modal-body">
+            
+            <div class="row">
+              <div class="col-12">
+                
+                  
+                  <div class="row m-3">
+                    <div class="col-12">
+                      
+                      <div class="tab-content" id="myTabContent">
+
+                        <div class="tab-pane fade" id="bs-tab-1-pane" role="tabpanel" aria-labelledby="bs-tab-1" tabindex="0">
+                          <form method="POST" action="{% url 'modifyOrder' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="variety" value="NORMAL">
+                            <input type="hidden" name="tradingsymbol">
+                            <input type="hidden" name="symboltoken">
+                            <input type="hidden" name="transactiontype">
+                            <input type="hidden" name="orderid">
+                            <div id="bs-regular">
+                              <table cellpadding="10">
+                                <tr>
+                                  <td>Product Type</td>
+                                  <td>Quantity</td>
+                                  <td colspan=3>Price</td>
+                                </tr>
+                                <tr>
+                                  <td>
+                                    <div class="btn-group" role="group">
+                                    <input type="radio" class="btn-check" id="btnrdo1" name="producttype" value="INTRADAY" checked>
+                                    <label class="btn btn-outline-secondary form-control" for="btnrdo1">Intraday</label>
+                                    <input type="radio" class="btn-check" id="btnrdo2" name="producttype" value="DELIVERY">
+                                    <label class="btn btn-outline-secondary form-control" for="btnrdo2">Delivery</label>
+                                    </div>
+                                  </td>
+                                  <td>
+                                    <div class="input-group">
+                                      <input type="number" name="quantity" value="0" min="0" class="form-control" placeholder="Quantity" aria-label="Quantity" aria-describedby="modalQty">
+                                      {% comment %} <span class="input-group-text" id="modalQty">Qty</span> {% endcomment %}
+                                    </div>
+                                  </td>
+                                  <td   colspan=3>
+                                    <!--Make border of below div green using Bootstrap-->
+                                    <div class="input-group">
+                                      <input type="text" name="price" value="0" class="form-control" placeholder="Price" aria-label="Price" aria-describedby="modalPrice" id="rgPrice" disabled>
+                                      {% comment %} <span class="input-group-text" id="modalPrice">Price</span> {% endcomment %}
+                                    </div>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td></td>
+                                  <td></td>
+                                  
+                                  <td>Limit</td>
+                                  <td>
+                                    <div class="form-check form-switch custom-switch-v1 mb-2">        
+                                    <input type="checkbox" class="form-check-input" name="ordertype" id="rgRadio">                  
+                                    </div>
+                                  </td>
+                                  <td>Market</td>
+                                </tr>
+                              </table>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                              <button type="submit" class="btn shadow-2" name="bsRGButton" id="rgClick" onclick="sendPrice()">Modify Order</button>
+                            </div>
+                          </form>
+                        </div>
+
+                        <div class="tab-pane fade" id="bs-tab-2-pane" role="tabpanel" aria-labelledby="bs-tab-2" tabindex="0">
+                          <form method="POST" action="{% url 'modifyOrder' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="variety" value="STOPLOSS">
+                            <input type="hidden" name="tradingsymbol">
+                            <input type="hidden" name="symboltoken">
+                            <input type="hidden" name="transactiontype">
+                            <input type="hidden" name="orderid">
+                            
+                            <div id="bs-stoploss">
+                              <table cellpadding="10">
+                                <tr>
+                                  <td>Product Type</td>
+                                  <td>Quantity</td>
+                                  <td>SL Trigger Price</td>
+                                  <td colspan=3>SL Limit Price</td>
+                                </tr>
+                                <tr>
+                                  <td>
+                                    <div class="btn-group" role="group">
+                                      <input type="radio" class="btn-check" id="btnrdo3" name="producttype" value="INTRADAY" checked>
+                                      <label class="btn btn-outline-secondary form-control" for="btnrdo3">INT</label>
+                                      <input type="radio" class="btn-check" id="btnrdo4" name="producttype" value="DELIVERY">
+                                      <label class="btn btn-outline-secondary form-control" for="btnrdo4">DEL</label>
+                                    </div>
+
+                                    {% comment %} <input type="radio" class="btn-check" id="btn-radio2" autocomplete="off">
+                                    <label class="btn btn-success" for="btn-radio">Intraday</label>
+                                    <input type="radio" class="btn-check" id="btn-radio2" autocomplete="off">
+                                    <label class="btn btn-success" for="btn-radio">Delivery</label> {% endcomment %}
+                                  </td>
+                                  <td>
+                                    <div class="input-group">
+                                      <input type="number" name="quantity" value="0" min="0" class="form-control btn-outline-success" placeholder="Quantity" aria-label="Quantity" aria-describedby="modalQty">
+                                      {% comment %} <span class="input-group-text" id="modalQty">Qty</span> {% endcomment %}
+                                    </div>
+                                  </td>
+                                  <td>
+                                    <!--Make border of below div green using Bootstrap-->
+                                    <div class="input-group">
+                                      <input type="text" name="triggerprice" value="0" class="form-control" placeholder="Price" aria-label="Price" aria-describedby="modalPrice" id="slTriggerPrice">
+                                      {% comment %} <span class="input-group-text" id="modalPrice">Price</span> {% endcomment %}
+                                    </div>
+                                  </td>
+                                  <td colspan=3>
+                                    <!--Make border of below div green using Bootstrap-->
+                                    <div class="input-group">
+                                      <input type="text" name="price" value="0" class="form-control" placeholder="Price" aria-label="Price" aria-describedby="modalPrice" id="slPrice" disabled>
+                                      {% comment %} <span class="input-group-text" id="modalPrice">Price</span> {% endcomment %}
+                                    </div>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td></td>
+                                  <td></td>
+                                  <td></td>
+                                  <td>Limit</td>
+                                  <td>
+                                    <div class="form-check form-switch custom-switch-v1 mb-2">        
+                                    <input type="checkbox" class="form-check-input" name="ordertype" id="slRadio">                  
+                                    </div>
+                                  </td>
+                                  <td>Market</td>
+                                </tr>
+                              </table>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                              <button type="submit" class="btn shadow-2" name="bsRGButton" id="slClick" onclick="sendPrice()">Modify Order</button>
+                            </div>
+                          </form>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+          {% comment %} <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn shadow-2" id="bsRGButton" onclick="sendPrice()">Modify Order</button>
+          </div> {% endcomment %}
+          {% comment %}  {% endcomment %}
+      </div>
+    </div>
+  </div>
+  <!--Modal Ends-->
+  <script>
+    function loadModal(data)
+    {
+      console.log(data);
+      //data = JSON.parse(data.replace(/'/g, '"'));
+      var buySellBadge = document.getElementById('buy-sell-badge');
+      buySellBadge.innerHTML = data['transactiontype'];
+      if(data['transactiontype'] == 'BUY')
+      {  
+        buySellBadge.classList.add('bg-success');
+        buySellBadge.classList.remove('bg-danger');
+        document.getElementById('rgRadio').classList.add('input-light-success');
+        document.getElementById('rgRadio').classList.remove('input-light-danger');
+        document.getElementById('slRadio').classList.add('input-light-success');
+        document.getElementById('slRadio').classList.remove('input-light-danger');
+        document.getElementById('rgClick').classList.add('btn-success');
+        document.getElementById('slClick').classList.add('btn-success');
+        document.getElementById('rgClick').classList.remove('btn-danger');
+        document.getElementById('slClick').classList.remove('btn-danger');
+      }
+      else if(data['transactiontype'] == 'SELL')
+      {  
+        buySellBadge.classList.add('bg-danger');
+        buySellBadge.classList.remove('bg-success');
+        document.getElementById('rgRadio').classList.add('input-light-danger');
+        document.getElementById('rgRadio').classList.remove('input-light-success');
+        document.getElementById('slRadio').classList.add('input-light-danger');
+        document.getElementById('slRadio').classList.remove('input-light-success');
+        document.getElementById('rgClick').classList.add('btn-danger');
+        document.getElementById('slClick').classList.add('btn-danger');
+        document.getElementById('rgClick').classList.remove('btn-success');
+        document.getElementById('slClick').classList.remove('btn-success');
+      }
+      document.getElementById('modalName').innerHTML = data['tradingsymbol'];
+      var tab1 = document.getElementById('bs-tab-1-pane');
+      var tab2 = document.getElementById('bs-tab-2-pane');
+      if(data['variety'] == 'NORMAL')
+      {
+        tab1.classList.add('active');
+        tab1.classList.add('show');
+        tab2.classList.remove('active');
+        tab2.classList.remove('show');
+        if(data['ordertype'] == 'LIMIT')
+          document.getElementById('rgRadio').checked = false;
+        else if(data['ordertype'] == 'MARKET')
+          document.getElementById('rgRadio').checked = true;
+        
+        if(data['producttype'] == 'INTRADAY')
+          document.getElementById('btnrdo1').checked = true;
+        else if(data['producttype'] == 'DELIVERY')
+        document.getElementById('btnrdo2').checked = true;
+
+        document.getElementById('rgPrice').value = data['price'];
+
+        document.getElementsByName('quantity')[0].value = data['quantity'];
+
+        document.getElementsByName('tradingsymbol')[0].value = data['tradingsymbol'];
+        document.getElementsByName('symboltoken')[0].value = data['symboltoken'];
+        document.getElementsByName('transactiontype')[0].value = data['transactiontype'];
+        document.getElementsByName('orderid')[0].value = data['orderid'];
+      }
+      else if(data['variety'] == 'STOPLOSS')
+      {
+        tab1.classList.remove('active');
+        tab1.classList.remove('show');
+        tab2.classList.add('active');
+        tab2.classList.add('show');
+        if(data['ordertype'] == 'STOPLOSS_LIMIT')
+          document.getElementById('slRadio').checked = false;
+        else if(data['ordertype'] == 'STOPLOSS_MARKET')
+          document.getElementById('slRadio').checked = true;
+
+        if(data['producttype'] == 'INTRADAY')
+          document.getElementById('btnrdo3').checked = true;
+        else if(data['producttype'] == 'DELIVERY')
+          document.getElementById('btnrdo4').checked = true;
+
+        document.getElementById('slPrice').value = data['price'];
+        document.getElementById('slTriggerPrice').value = data['triggerprice'];
+
+        document.getElementsByName('quantity')[1].value = data['quantity'];
+
+        document.getElementsByName('tradingsymbol')[1].value = data['tradingsymbol'];
+        document.getElementsByName('symboltoken')[1].value = data['symboltoken'];
+        document.getElementsByName('transactiontype')[1].value = data['transactiontype'];
+        document.getElementsByName('orderid')[1].value = data['orderid'];
+      }
+    }
+    function sendPrice()
+    {
+      var price = document.getElementsByName('price');
+      price[0].disabled = false;
+      price[1].disabled = false;
+    }
+  </script>
+{% endblock %}
