@@ -1,3 +1,4 @@
+import subprocess
 from SmartApi.smartWebSocketV2 import SmartWebSocketV2
 import ast
 # print(authenticate.views.AUTH_TOKEN, intelliTrade.config.api_key, authenticate.views.CLIENT_CODE, authenticate.views.FEED_TOKEN)
@@ -16,6 +17,7 @@ def on_data(wsapp, message):
         try:
             # data = str(message).replace("'", '"')
             with open('static/users/'+connect["TKN_PATH"]+'_stream.txt','w') as stream:
+                subprocess.Popen(['python3', 'manage.py', 'collectstatic', '--no-input'])
                 stream.write(str(message).replace("'", '"'))
                 stream.close()
         except Exception as e:

@@ -68,7 +68,7 @@ def watchlist(request, viewSymbol=None):
                 'FEED_TOKEN' : request.session['feedToken'],
                 'TKN_PATH' : str(''.join(random.choices(string.ascii_uppercase + string.digits, k=10)))
             }
-            print(connect['TKN_PATH'])
+            request.session['TKN_PATH'] = connect['TKN_PATH']
             quote = { 
                 'correlation_id' : "abc123", 
                 'action' : 1, 
@@ -285,8 +285,8 @@ def signout(request):
         wlStreamControl.terminate()
         wlStreamControl = None
     try:
-        if os.path.exists('static/users/'+request.session['feedToken'][::-1]+'_stream.txt'):
-            os.remove('static/users/'+request.session['feedToken'][::-1]+'_stream.txt')
+        if os.path.exists('static/users/'+request.session['TKN_PATH']+'_stream.txt'):
+            os.remove('static/users/'+request.session['TKN_PATH']+'_stream.txt')
         if 'clientId' in request.session:
             smartApi.terminateSession(request.session['clientId'])
             del request.session['jwtToken']
