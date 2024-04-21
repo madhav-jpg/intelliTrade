@@ -134,7 +134,7 @@ def watchlist(request, viewSymbol=None):
             divLine = opy.plot(figure, auto_open=False, output_type='div')
 
             streamControl = subprocess.Popen(['python3', 'stream.py'])
-            subprocess.Popen(['python3', 'manage.py', 'collectstatic'])
+            subprocess.Popen(['python3', 'manage.py', 'collectstatic', '--no-input'])
             # wlStreamControl = subprocess.Popen(['python3', 'wlStream.py'])
             return render(request, 'watchlist.html', {'name' : request.session['name'], 'clientId' : request.session['clientId'], 'list' : list, 'viewSymbol' : viewSymbol, 'divCandle': divCandle, 'divLine': divLine, 'tkn' : request.session['feedToken'][::-1], 'viewToken' : viewToken[0][0]})
         else:
