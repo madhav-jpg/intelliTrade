@@ -285,8 +285,8 @@ def signout(request):
         wlStreamControl.terminate()
         wlStreamControl = None
     try:
-        if os.path.exists('static/users/'+request.session['feedToken'][::-1]+'_stream'):
-            os.remove('static/users/'+request.session['feedToken'][::-1]+'_stream')
+        if os.path.exists('static/users/'+request.session['feedToken'][::-1]+'_stream.txt'):
+            os.remove('static/users/'+request.session['feedToken'][::-1]+'_stream.txt')
         if 'clientId' in request.session:
             smartApi.terminateSession(request.session['clientId'])
             del request.session['jwtToken']

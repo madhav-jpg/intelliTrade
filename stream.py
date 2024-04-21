@@ -15,7 +15,7 @@ def on_data(wsapp, message):
     if message != b'\x00':
         try:
             # data = str(message).replace("'", '"')
-            with open('static/users/'+connect["TKN_PATH"]+'_stream','w') as stream:
+            with open('static/users/'+connect["TKN_PATH"]+'_stream.txt','w') as stream:
                 stream.write(str(message).replace("'", '"'))
                 stream.close()
         except Exception as e:
