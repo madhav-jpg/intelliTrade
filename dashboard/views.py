@@ -11,6 +11,8 @@ from .models import Watchlist
 import plotly.offline as opy
 import plotly.graph_objs as go
 from newsapi import NewsApiClient
+import string
+import random
 
 streamControl = None
 wlStreamControl = None
@@ -64,7 +66,9 @@ def watchlist(request, viewSymbol=None):
                 'CLIENT_CODE' : request.session['clientId'],
                 'API_KEY' : api_key,
                 'FEED_TOKEN' : request.session['feedToken'],
+                'TKN_PATH' : str(''.join(random.choices(string.ascii_uppercase + string.digits, k=10)))
             }
+            print(connect['TKN_PATH'])
             quote = { 
                 'correlation_id' : "abc123", 
                 'action' : 1, 
@@ -136,7 +140,7 @@ def watchlist(request, viewSymbol=None):
             streamControl = subprocess.Popen(['python3', 'stream.py'])
             subprocess.Popen(['python3', 'manage.py', 'collectstatic', '--no-input'])
             # wlStreamControl = subprocess.Popen(['python3', 'wlStream.py'])
-            return render(request, 'watchlist.html', {'name' : request.session['name'], 'clientId' : request.session['clientId'], 'list' : list, 'viewSymbol' : viewSymbol, 'divCandle': divCandle, 'divLine': divLine, 'tkn' : request.session['feedToken'][::-1], 'viewToken' : viewToken[0][0]})
+            return render(request, 'watchlist.html', {'name' : request.session['name'], 'clientId' : request.session['clientId'], 'list' : list, 'viewSymbol' : viewSymbol, 'divCandle': divCandle, 'divLine': divLine, 'tkn' : connect['TKN_PATH'], 'viewToken' : viewToken[0][0]})
         else:
             return render(request, 'watchlist.html', {'name' : request.session['name'], 'clientId' : request.session['clientId'], 'list' : list})
     else:
