@@ -105,7 +105,84 @@
 </script> {% endcomment %}
 {% if viewSymbol != None %}
 <script>
-  function getStream() {
+  function makePostRequest() {
+    var url = 'https://apiconnect.angelbroking.com/rest/secure/angelbroking/market/v1/quote/';
+    var jsonData = { "mode": 'FULL', "exchangeTokens": { "NSE": ["{{viewToken}}"]} };
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-ClientLocalIP': '192.168.168.168',
+            'X-ClientPublicIP': '106.193.147.98',
+            'X-MACAddress': 'fe80::216e:6507:4b90:3719',
+            'Accept': 'application/json',
+            'X-PrivateKey': '{{api}}',
+            'X-UserType': 'USER',
+            'X-SourceID': 'WEB',
+            'Authorization': '{{jwtToken}}'
+        },
+        body: JSON.stringify(jsonData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+      window.wsData = wsData = data['data']['fetched'][0];
+      //console.log(JSON.stringify(wsData))
+      document.getElementById('open_price_of_the_day').innerHTML = "₹ "+(wsData['open']).toFixed(2);
+      document.getElementById('high_price_of_the_day').innerHTML = "₹ "+(wsData['high']).toFixed(2);
+      document.getElementById('low_price_of_the_day').innerHTML = "₹ "+(wsData['low']).toFixed(2);
+      
+      document.getElementById('closed_price').innerHTML = "₹ "+(wsData['close']).toFixed(2);
+      close = (wsData['close']).toFixed(2);
+      document.getElementById('average_traded_price').innerHTML = "₹ "+(wsData['avgPrice']).toFixed(2);
+      
+      document.getElementById('volume_trade_for_the_day').innerHTML = wsData['tradeVolume'];
+      document.getElementById('week-52-low').innerHTML = document.getElementById('week-52').min = wsData['52WeekLow'];
+      document.getElementById('week-52-high').innerHTML = document.getElementById('week-52').max = wsData['52WeekHigh'];
+      document.getElementById('week-52').value = wsData['ltp'];
+      document.getElementById('circuit-low').innerHTML = document.getElementById('circuit-limit').min = wsData['lowerCircuit'];
+      document.getElementById('circuit-high').innerHTML = document.getElementById('circuit-limit').max = wsData['upperCircuit'];
+      document.getElementById('circuit-limit').value = wsData['ltp'];
+      ltpData = document.getElementById('ltpData');
+      ltp = (wsData['ltp']).toFixed(2);
+      ltpData.innerHTML = "₹ "+ltp;
+      if((ltp-close) > 0)
+      {
+        ltpData.classList.add("text-success");
+        ltpData.classList.remove("text-danger");
+        ltpData.innerHTML += " <i class='material-icons-two-tone text-success'>arrow_drop_up</i> &nbsp; <label class='h6 text-success'>+"+(ltp-close).toFixed(2)+ '(' +(((ltp/close)-1)*100).toFixed(2) + "%)</label>";
+      }
+      else
+      {
+        ltpData.classList.add("text-danger");
+        ltpData.classList.remove("text-success");
+        ltpData.innerHTML += " <i class='material-icons-two-tone text-danger'>arrow_drop_down</i> &nbsp; <label class='h6 text-danger'>"+(ltp-close).toFixed(2)+ '(' +(((ltp/close)-1)*100).toFixed(2) + "%)</label>";
+      }
+      document.getElementById("{{viewToken}}-sidebar-price").innerHTML = "₹ "+ltp;
+      
+      document.getElementById('bid_ask_price').innerHTML = "₹ "+(wsData["depth"]["buy"][0]['price']).toFixed(2) + " / " + "₹ "+(wsData["depth"]["sell"][0]['price']).toFixed(2);
+      for (let i = 0; i < 5; i++) {
+        document.getElementById('bid_'+(i+1)).innerHTML = "₹ "+(wsData["depth"]["buy"][i]['price']).toFixed(2);
+        document.getElementById('bid_orders_'+(i+1)).innerHTML = wsData["depth"]["buy"][i]['orders'];
+        document.getElementById('bid_qty_'+(i+1)).innerHTML = wsData["depth"]["buy"][i]['quantity'];
+        document.getElementById('offer_'+(i+1)).innerHTML = "₹ "+(wsData["depth"]["sell"][i]['price']).toFixed(2);
+        document.getElementById('offer_orders_'+(i+1)).innerHTML = wsData["depth"]["sell"][i]['orders'];
+        document.getElementById('offer_qty_'+(i+1)).innerHTML = wsData["depth"]["sell"][i]['quantity'];
+      }
+    })
+    .catch(error => {
+        console.error('There was a problem with the request:', error);
+    });
+}
+setInterval(makePostRequest, 1000);
+
+
+  /*function getStream() {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -157,6 +234,7 @@
       xhttp.send();
   }
   setInterval(getStream,100); 
+  */
 </script>
 
 {% comment %} <script>
@@ -220,7 +298,7 @@
     let list = '';
     let terms = autocompleteMatch(val);
     for (i=0; i<terms.length; i++) {
-      list += '<div class="my-2">' + terms[i] + '&emsp;&emsp;<input type="hidden" name="token" value="'+search_tokens[search_terms.indexOf(terms[i])]+'"/><button type="submit" name="symbol" value="'+terms[i]+'" class="btn btn-icon btn-light-success avtar-xs float-end"><svg class="pc-icon"> <use xlink:href="#custom-add-outline"></use> </svg></button></div>';
+      list += '<div class="my-2">' + terms[i] + '&emsp;&emsp;<input type="hidden" name="'+ terms[i] +'" value="'+search_tokens[search_terms.indexOf(terms[i])]+'"/><button type="submit" name="symbol" value="'+terms[i]+'" class="btn btn-icon btn-light-success avtar-xs float-end"><svg class="pc-icon"> <use xlink:href="#custom-add-outline"></use> </svg></button></div>';
     }
     res.innerHTML = list;
   }
@@ -1188,7 +1266,6 @@
     });
   </script> {% endcomment %}
   <!-- [Page Specific JS] end -->
-  
 </body>
 
 </html>

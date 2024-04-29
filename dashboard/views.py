@@ -137,10 +137,10 @@ def watchlist(request, viewSymbol=None):
             figure.add_trace(scatter)
             divLine = opy.plot(figure, auto_open=False, output_type='div')
 
-            streamControl = subprocess.Popen(['python3', 'stream.py'])
-            subprocess.Popen(['python3', 'manage.py', 'collectstatic', '--no-input'])
+            # streamControl = subprocess.Popen(['python3', 'stream.py'])
+            # subprocess.Popen(['python3', 'manage.py', 'collectstatic', '--no-input'])
             # wlStreamControl = subprocess.Popen(['python3', 'wlStream.py'])
-            return render(request, 'watchlist.html', {'name' : request.session['name'], 'clientId' : request.session['clientId'], 'list' : list, 'viewSymbol' : viewSymbol, 'divCandle': divCandle, 'divLine': divLine, 'tkn' : connect['TKN_PATH'], 'viewToken' : viewToken[0][0]})
+            return render(request, 'watchlist.html', {'name' : request.session['name'], 'clientId' : request.session['clientId'], 'list' : list, 'viewSymbol' : viewSymbol, 'divCandle': divCandle, 'divLine': divLine, 'tkn' : connect['TKN_PATH'], 'viewToken' : viewToken[0][0], 'api': connect['API_KEY'], 'jwtToken': connect['AUTH_TOKEN']})
         else:
             return render(request, 'watchlist.html', {'name' : request.session['name'], 'clientId' : request.session['clientId'], 'list' : list})
     else:
@@ -307,10 +307,10 @@ def addToWatchlist(request):
         streamControl.terminate()
         streamControl = None
     if 'clientId' in request.session:
-        if request.method == "POST" and 'token' in request.POST and 'symbol' in request.POST:
+        if request.method == "POST" and 'symbol' in request.POST:
             clientId = request.session['clientId']
-            token = request.POST.get('token')
             symbol = request.POST.get('symbol')
+            token = request.POST.get(symbol)
             print(clientId, token, symbol)
             if Watchlist.objects.filter(clientId = clientId, token = token, symbol = symbol).exists():
                 return redirect('getWatchlist', viewSymbol=symbol)

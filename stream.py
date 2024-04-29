@@ -17,7 +17,7 @@ def on_data(wsapp, message):
         try:
             # data = str(message).replace("'", '"')
             with open('static/users/'+connect["TKN_PATH"]+'_stream.txt','w') as stream:
-                subprocess.Popen(['python3', 'manage.py', 'collectstatic', '--no-input'])
+                # subprocess.Popen(['python3', 'manage.py', 'collectstatic', '--no-input'])
                 stream.write(str(message).replace("'", '"'))
                 stream.close()
         except Exception as e:
