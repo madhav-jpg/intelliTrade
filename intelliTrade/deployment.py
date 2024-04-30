@@ -3,7 +3,7 @@ from .settings import *
 from .settings import BASE_DIR
 
 SECRET_KEY = os.environ['SECRET_KEY']
-ALLOWED_HOSTS = [os.environ['WEBSITE_HOSTNAME']]
+ALLOWED_HOSTS = [os.environ['WEBSITE_HOSTNAME'], 'intellitrade.madhavkotecha.me']
 CSRF_TRUSTED_ORIGINS = ['https://' + os.environ['WEBSITE_HOSTNAME']]
 DEBUG = True
 
