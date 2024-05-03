@@ -30,11 +30,11 @@ def home(request):
         # response = requests.get("https://newsapi.org/v2/top-headlines?country=in&category=business&apiKey=693a4d6974254e0d901e46d85e304df7")
         # if response.status_code == 200:
         #     articles = response.json()['articles']
-        articles = newsapi.get_everything(q='trading OR stock OR finance OR market OR investment OR share',
+        articles = newsapi.get_everything(q='trading OR stock OR finance OR market OR investment OR share OR cryptocurrency OR currency',
                                     sources='google-news-in,the-hindu,the-times-of-india',
                                     language='en',
-                                    from_param=(datetime.datetime.now()).strftime("%Y-%m-%d"),
-                                    to=(datetime.datetime.now() - datetime.timedelta(days=2)).strftime("%Y-%m-%d"),
+                                    from_param=(datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
+                                    to=(datetime.datetime.now()).strftime("%Y-%m-%d"),
                                     sort_by='relevancy')['articles']
         
         return render(request, 'home.html', {'name' : request.session['name'], 'clientId' : request.session['clientId'], 'articles' : articles})
